@@ -1,0 +1,62 @@
+# Environment keys
+.env
+.env.local
+.env.*.local
+*.env
+firebase-export.json
+serviceAccountKey.json
+
+# Sensitive data files
+*.pdf
+*.xlsx
+*.xls
+*.csv
+*.sql
+*.db
+*.sqlite*
+*.sqlite-wal
+*.sqlite-shm
+.registered-id-migration-backup-done
+*.bak
+*.backup
+
+# Sensitive information files
+*secret*
+*password*
+*credential*
+*identity*
+
+# Dependencies
+node_modules/
+
+# Build output
+.next/
+out/
+dist/
+build/
+.output/
+android/build/
+
+# Vercel
+.vercel/
+
+# System files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE config
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local config
+*.local

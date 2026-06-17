@@ -1,0 +1,237 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>WorkerTracker | Portal Access</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="landing-page">
+    <main class="login-split">
+        <section class="login-form-panel">
+            <div class="language-toggle login-language-toggle">
+                <button class="btn btn-secondary btn-sm" id="landingEnglishBtn" type="button">English</button>
+                <button class="btn btn-secondary btn-sm" id="landingChineseBtn" type="button">中文</button>
+            </div>
+            <img class="login-logo-small" src="workertracker-logo.png" alt="WorkerTracker logo">
+            <h1 data-i18n="Platform Login">Platform Login</h1>
+            <p class="landing-copy" data-i18n="Sign in to manage Workforce Tracker.">Sign in to manage Workforce Tracker.</p>
+
+            <form class="admin-login" id="adminLoginForm">
+                <label for="adminEmailInput" data-i18n="Registered ID">Registered ID</label>
+                <input id="adminEmailInput" type="text" autocomplete="username" />
+                <label for="passwordInput" data-i18n="Password">Password</label>
+                <input id="passwordInput" type="password" autocomplete="current-password" />
+                <label for="confirmPasswordInput" id="confirmPasswordLabel" data-i18n="Confirm Password" hidden>Confirm Password</label>
+                <input id="confirmPasswordInput" type="password" autocomplete="new-password" hidden />
+                <p class="landing-copy" id="registerHint" data-i18n="Register a personal ID account" hidden>Register a personal ID account</p>
+                <div class="landing-actions">
+                    <button class="btn" id="loginSubmitBtn" type="submit" data-i18n="Login">Login</button>
+                    <button class="btn btn-secondary" id="registerToggleBtn" type="button" data-i18n="Register">Register</button>
+                </div>
+                <p class="error-message" id="adminLoginError" aria-live="polite"></p>
+            </form>
+            <form class="admin-login" id="nameSetupForm" hidden>
+                <p class="landing-copy" data-i18n="Please enter your display name">Please enter your display name</p>
+                <label for="setupDisplayNameInput" data-i18n="Display Name">Display Name</label>
+                <input id="setupDisplayNameInput" type="text" autocomplete="name" maxlength="50" />
+                <div class="landing-actions">
+                    <button class="btn" id="nameSetupContinueBtn" type="submit" data-i18n="Continue">Continue</button>
+                </div>
+                <p class="error-message" id="nameSetupError" aria-live="polite"></p>
+            </form>
+        </section>
+        <section class="login-brand-panel">
+            <img class="login-brand-logo" src="workertracker-logo.png" alt="WorkerTracker logo">
+            <h2 data-i18n="Workforce Management Simplified">Workforce Management Simplified</h2>
+            <p data-i18n="Track workers, schedules, payments, funds, expenses, and reports from one focused workspace.">Track workers, schedules, payments, funds, expenses, and reports from one focused workspace.</p>
+            <div class="login-feature-list">
+                <span data-i18n="Personal ID workspace and shared Bank Rental">Personal ID workspace and shared Bank Rental</span>
+                <span data-i18n="MYR financial tracking and PDF exports">MYR financial tracking and PDF exports</span>
+                <span data-i18n="Real-time data synchronization">Real-time data synchronization</span>
+            </div>
+        </section>
+    </main>
+
+    <script src="inspect-protection.js"></script>
+    <script type="module">
+        import { registerViewer, signInAdmin, updateDisplayName } from "./auth.js";
+
+        const adminLoginForm = document.getElementById("adminLoginForm");
+        const adminEmailInput = document.getElementById("adminEmailInput");
+        const passwordInput = document.getElementById("passwordInput");
+        const confirmPasswordInput = document.getElementById("confirmPasswordInput");
+        const confirmPasswordLabel = document.getElementById("confirmPasswordLabel");
+        const registerHint = document.getElementById("registerHint");
+        const loginSubmitBtn = document.getElementById("loginSubmitBtn");
+        const registerToggleBtn = document.getElementById("registerToggleBtn");
+        const adminLoginError = document.getElementById("adminLoginError");
+        const landingEnglishBtn = document.getElementById("landingEnglishBtn");
+        const landingChineseBtn = document.getElementById("landingChineseBtn");
+        const nameSetupForm = document.getElementById("nameSetupForm");
+        const setupDisplayNameInput = document.getElementById("setupDisplayNameInput");
+        const nameSetupError = document.getElementById("nameSetupError");
+        const LANGUAGE_KEY = "workertracker_language";
+        const landingTranslations = {
+            zh: {
+                "Platform Login": "平台登录",
+                "Sign in to manage Workforce Tracker.": "登录以管理 Workforce Tracker。",
+                "Registered ID": "注册 ID",
+                "Display Name": "显示名称",
+                "Please enter your display name": "请输入你的显示名称",
+                "Continue": "继续",
+                "Password": "密码",
+                "Confirm Password": "确认密码",
+                "Register a personal ID account": "注册个人 ID 账号",
+                "Register": "注册",
+                "Back to Login": "返回登录",
+                "Create Account": "创建账号",
+                "Login": "登录",
+                "Workforce Management Simplified": "让劳动力管理更简单",
+                "Track workers, schedules, payments, funds, expenses, and reports from one focused workspace.": "在一个专注的工作空间中追踪员工、排班、付款、资金、费用和报表。",
+                "Personal ID workspace and shared Bank Rental": "个人 ID 工作区与共享银行租赁",
+                "MYR financial tracking and PDF exports": "MYR 财务追踪和 PDF 导出",
+                "Real-time data synchronization": "实时数据同步",
+                "Incorrect ID or password.": "ID 或密码不正确。",
+                "Passwords do not match.": "两次输入的密码不一致。",
+                "Display Name must be 2 to 50 characters.": "显示名称必须为 2 到 50 个字符。",
+                "Registered ID is already registered.": "注册 ID 已存在。"
+            }
+        };
+        let landingLanguage = "en";
+        let isRegisterMode = false;
+        let pendingSession = null;
+
+        function translateLanding(label) {
+            return landingLanguage === "zh" ? landingTranslations.zh[label] || label : label;
+        }
+
+        function applyLandingLanguage() {
+            const scrollX = window.scrollX;
+            const scrollY = window.scrollY;
+            const activeElement = document.activeElement;
+
+            document.querySelectorAll("[data-i18n]").forEach((element) => {
+                element.textContent = translateLanding(element.dataset.i18n);
+            });
+            landingEnglishBtn.classList.toggle("active", landingLanguage === "en");
+            landingChineseBtn.classList.toggle("active", landingLanguage === "zh");
+
+            if (activeElement && typeof activeElement.focus === "function") {
+                activeElement.focus({ preventScroll: true });
+            }
+            window.scrollTo(scrollX, scrollY);
+        }
+
+        function setLandingText(element, label) {
+            element.dataset.i18n = label;
+            element.textContent = translateLanding(label);
+        }
+
+        function setRegisterMode(enabled) {
+            isRegisterMode = enabled;
+            confirmPasswordLabel.hidden = !enabled;
+            confirmPasswordInput.hidden = !enabled;
+            registerHint.hidden = !enabled;
+            passwordInput.autocomplete = enabled ? "new-password" : "current-password";
+            setLandingText(loginSubmitBtn, enabled ? "Create Account" : "Login");
+            setLandingText(registerToggleBtn, enabled ? "Back to Login" : "Register");
+            adminLoginError.textContent = "";
+            confirmPasswordInput.value = "";
+            adminEmailInput.focus();
+        }
+
+        function redirectForSession(session) {
+            location.href = session.isSuperadmin ? "admin.html" : "viewer.html";
+        }
+
+        function requireNameSetup(session) {
+            pendingSession = session;
+            adminLoginForm.hidden = true;
+            nameSetupForm.hidden = false;
+            nameSetupError.textContent = "";
+            setupDisplayNameInput.value = "";
+            setupDisplayNameInput.focus();
+        }
+
+        function continueAfterAuth(session) {
+            if (!String(session.displayName || "").trim()) {
+                requireNameSetup(session);
+                return;
+            }
+            redirectForSession(session);
+        }
+
+        landingEnglishBtn.addEventListener("click", (event) => {
+            event.preventDefault();
+            landingLanguage = "en";
+            applyLandingLanguage();
+        });
+
+        landingChineseBtn.addEventListener("click", (event) => {
+            event.preventDefault();
+            landingLanguage = "zh";
+            applyLandingLanguage();
+        });
+
+        applyLandingLanguage();
+        const authParams = new URLSearchParams(location.search);
+        if (authParams.get("auth") === "account_removed") {
+            adminLoginError.textContent = authParams.get("message") || "Account unavailable. This account has been removed by administrator.";
+            history.replaceState(null, "", location.pathname);
+        }
+        adminEmailInput.focus();
+
+        registerToggleBtn.addEventListener("click", () => {
+            setRegisterMode(!isRegisterMode);
+        });
+
+        adminLoginForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            adminLoginError.textContent = "";
+
+            try {
+                const email = adminEmailInput.value.trim();
+                const password = passwordInput.value;
+                let session;
+                if (isRegisterMode) {
+                    const confirmPassword = confirmPasswordInput.value;
+                    if (password !== confirmPassword) {
+                        adminLoginError.textContent = translateLanding("Passwords do not match.");
+                        confirmPasswordInput.select();
+                        return;
+                    }
+                    session = await registerViewer(email, password);
+                } else {
+                    session = await signInAdmin(email, password);
+                }
+                continueAfterAuth(session);
+                return;
+            } catch (error) {
+                console.warn("Sign-in failed.", error);
+                adminLoginError.textContent = translateLanding(error.message || "Incorrect email or password.");
+            }
+
+            passwordInput.select();
+        });
+
+        nameSetupForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            nameSetupError.textContent = "";
+            const displayName = setupDisplayNameInput.value.trim();
+            if (displayName.length < 2 || displayName.length > 50) {
+                nameSetupError.textContent = translateLanding("Display Name must be 2 to 50 characters.");
+                setupDisplayNameInput.focus();
+                return;
+            }
+            try {
+                const session = await updateDisplayName(displayName);
+                redirectForSession(session || pendingSession);
+            } catch (error) {
+                nameSetupError.textContent = translateLanding(error.message || "Display Name must be 2 to 50 characters.");
+            }
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">workertracker</string>
+    <string name="title_activity_main">workertracker</string>
+    <string name="package_name">com.workertracker.app</string>
+    <string name="custom_url_scheme">com.workertracker.app</string>
+</resources>

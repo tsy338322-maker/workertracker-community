@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>WorkerTracker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-access="super">
+
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+<div class="sidebar" id="sidebar">
+    <div class="logo">WORKFORCE TRACK</div>
+    <nav class="nav" id="navigation"></nav>
+    <div class="sidebar-footer">&copy; 2026 WorkerTracker</div>
+</div>
+
+<div class="main">
+    <div class="topbar">
+        <button class="mobile-menu-btn" id="mobileMenuBtn" type="button" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">&#9776;</button>
+        <h3 class="topbar-brand"><img src="workertracker-logo.png" alt="WorkerTracker logo">WorkerTracker</h3>
+        <div class="topbar-actions">
+            <span id="roleIndicator" hidden></span>
+        </div>
+    </div>
+
+    <div class="content" id="appRoot"></div>
+</div>
+
+<div id="globalModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle"></h3>
+            <button class="close-btn" id="modalCloseBtn" aria-label="Close">x</button>
+        </div>
+        <div id="modalBody"></div>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" id="modalCancelBtn">Cancel</button>
+            <button class="btn" id="modalConfirmBtn">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="inspect-protection.js"></script>
+<script type="module" src="app.js"></script>
+</body>
+</html>
